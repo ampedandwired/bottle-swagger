@@ -1,2 +1,2 @@
-# bottle-swagger
-A Swagger plugin for Bottle
+# Bottle Swagger Plugin
+Validate Bottle requests and responses against a Swagger spec.
