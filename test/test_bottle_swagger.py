@@ -54,6 +54,24 @@ class TestBottleSwagger(TestCase):
                         }
                     }
                 }
+            },
+            "/thing/{thing_id}": {
+                "get": {
+                    "parameters": [{
+                        "name": "thing_id",
+                        "in": "path",
+                        "required": True,
+                        "type": "string"
+                    }],
+                    "responses": {
+                        "200": {
+                            "description": "",
+                            "schema": {
+                                "$ref": "#/definitions/Thing"
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -105,18 +123,24 @@ class TestBottleSwagger(TestCase):
                                       request_json=self.INVALID_JSON, response_json=self.INVALID_JSON)
         self.assertEqual(response.status_int, 200)
 
-    def _test_request(self, swagger_plugin=None, method='GET', url='/thing', request_json=VALID_JSON,
+    def test_path_parameters(self):
+        response = self._test_request(url="/thing/123", route_url="/thing/<thing_id>")
+        self.assertEqual(response.status_int, 200)
+
+    def _test_request(self, swagger_plugin=None, method='GET', url='/thing', route_url=None, request_json=VALID_JSON,
                       response_json=VALID_JSON):
         if swagger_plugin is None:
             swagger_plugin = self._make_swagger_plugin()
         if response_json is None:
             response_json = {}
+        if route_url is None:
+            route_url = url
 
         bottle_app = Bottle()
         bottle_app.install(swagger_plugin)
 
-        @bottle_app.route(url, method)
-        def do_something():
+        @bottle_app.route(route_url, method)
+        def do_thing(*args, **kwargs):
             return response_json() if hasattr(response_json, "__call__") else response_json
 
         test_app = TestApp(bottle_app)
