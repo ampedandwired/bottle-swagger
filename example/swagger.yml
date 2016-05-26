@@ -1,0 +1,36 @@
+swagger: '2.0'
+info: {title: bottle-swagger, version: 1.0.0}
+produces: [application/json]
+consumes: [application/json]
+definitions:
+  Thing:
+    properties:
+      id: {type: string}
+      name: {type: string}
+    required: [id]
+    type: object
+paths:
+  /thing:
+    get:
+      responses:
+        '200':
+          description: ''
+          schema: {$ref: '#/definitions/Thing'}
+    post:
+      parameters:
+      - in: body
+        name: thing
+        required: true
+        schema: {$ref: '#/definitions/Thing'}
+      responses:
+        '200':
+          description: ''
+          schema: {$ref: '#/definitions/Thing'}
+  "/thing/{thing_id}":
+    get:
+      parameters:
+      - {in: path, name: thing_id, required: true, type: string}
+      responses:
+        '200':
+          description: ''
+          schema: {$ref: '#/definitions/Thing'}
