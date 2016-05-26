@@ -127,6 +127,13 @@ class TestBottleSwagger(TestCase):
         response = self._test_request(url="/thing/123", route_url="/thing/<thing_id>")
         self.assertEqual(response.status_int, 200)
 
+    def test_get_swagger_schema(self):
+        bottle_app = Bottle()
+        bottle_app.install(self._make_swagger_plugin())
+        test_app = TestApp(bottle_app)
+        response = test_app.get(SwaggerPlugin.DEFAULT_SWAGGER_SCHEMA_URL)
+        self.assertEquals(response.json, self.SWAGGER_DEF)
+
     def _test_request(self, swagger_plugin=None, method='GET', url='/thing', route_url=None, request_json=VALID_JSON,
                       response_json=VALID_JSON):
         if swagger_plugin is None:

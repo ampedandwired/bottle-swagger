@@ -24,7 +24,9 @@ def _not_found_handler(e):
     return _error_response(404, e)
 
 
-class SwaggerPlugin(object):
+class SwaggerPlugin:
+    DEFAULT_SWAGGER_SCHEMA_URL = '/swagger.json'
+
     name = 'swagger'
     api = 2
 
@@ -35,7 +37,9 @@ class SwaggerPlugin(object):
                  invalid_request_handler=_bad_request_handler,
                  invalid_response_handler=_server_error_handler,
                  swagger_op_not_found_handler=_not_found_handler,
-                 exception_handler=_server_error_handler):
+                 exception_handler=_server_error_handler,
+                 serve_swagger_schema=True,
+                 swagger_schema_url=DEFAULT_SWAGGER_SCHEMA_URL):
         self.swagger = Spec.from_dict(swagger_def)
         self.validate_requests = validate_requests
         self.validate_responses = validate_responses
@@ -44,6 +48,8 @@ class SwaggerPlugin(object):
         self.invalid_response_handler = invalid_response_handler
         self.swagger_op_not_found_handler = swagger_op_not_found_handler
         self.exception_handler = exception_handler
+        self.serve_swagger_schema = serve_swagger_schema
+        self.swagger_schema_url = swagger_schema_url
 
     def apply(self, callback, route):
         def wrapper(*args, **kwargs):
@@ -51,10 +57,16 @@ class SwaggerPlugin(object):
 
         return wrapper
 
+    def setup(self, app):
+        if self.serve_swagger_schema:
+            @app.get(self.swagger_schema_url)
+            def swagger_schema():
+                return self.swagger.spec_dict
+
     def _swagger_validate(self, callback, route, *args, **kwargs):
         try:
             swagger_op = self._swagger_op(route)
-            if not swagger_op and not self.ignore_undefined_routes:
+            if not swagger_op and not self.ignore_undefined_routes and not self._is_swagger_schema_route(route):
                 return self.swagger_op_not_found_handler(route)
 
             if swagger_op and self.validate_requests:
@@ -91,6 +103,9 @@ class SwaggerPlugin(object):
         path = re.sub(r'/<(.+?)>', r'/{\1}', route.rule)
         return self.swagger.get_op_for_request(request.method, path)
 
+    def _is_swagger_schema_route(self, route):
+        return self.serve_swagger_schema and route.rule == self.swagger_schema_url
+
 
 class BottleIncomingRequest(IncomingRequest):
     def __init__(self, bottle_request):
@@ -105,7 +120,7 @@ class BottleOutgoingResponse(OutgoingResponse):
     def __init__(self, bottle_response, response_json):
         self.response = bottle_response
         self.response_json = response_json
-        self.content_type = bottle_response.content_type or 'application/json'
+        self.content_type = bottle_response.content_type if bottle_response.content_type else 'application/json'
 
     def json(self):
         return self.response_json
