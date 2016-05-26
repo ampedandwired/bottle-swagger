@@ -9,7 +9,7 @@ def _read(fname):
         return ''
 
 REQUIREMENTS = [l for l in _read('requirements.txt').split('\n') if l and not l.startswith('#')]
-VERSION = '0.1.0'
+VERSION = '1.0.0'
 
 setup(
         name='bottle-swagger',
