@@ -8,7 +8,7 @@ This project is a Bottle plugin for working with Swagger.
 `Bottle <http://bottlepy.org/>`_ is a Python web framework.
 `Swagger (OpenAPI) <http://swagger.io/>`_ is a standard for defining REST APIs.
 
-So you are serving a REST API with Bottle,
+So if you are serving a REST API with Bottle,
 and you have a defined a Swagger schema for that API,
 this plugin can:
 
@@ -48,20 +48,20 @@ Where "_load_swagger_def" returns a dict representing your swagger specification
 
 There are a number of arguments that you can pass to the plugin constructor:
 
-* *``validate_requests``* - Boolean (default ``True``) indicating if incoming requests should be validated or not
-* *``validate_responses``* - Boolean (default ``True``) indicating if outgoing responses should be validated or not
-* *``ignore_undefined_paths``* - Boolean (default ``False``) indicating if undefined paths
+* ``validate_requests`` - Boolean (default ``True``) indicating if incoming requests should be validated or not
+* ``validate_responses`` - Boolean (default ``True``) indicating if outgoing responses should be validated or not
+* ``ignore_undefined_paths`` - Boolean (default ``False``) indicating if undefined paths
   (that is, paths not defined in the swagger spec) should be passed on ("True") or return a 404 ("False")
-* *``invalid_request_handler``* - Callback called when request validation has failed.
+* ``invalid_request_handler`` - Callback called when request validation has failed.
   Default behaviour is to return a "400 Bad Request" response.
-* *``invalid_response_handler``* - Callback called when response validation has failed.
+* ``invalid_response_handler`` - Callback called when response validation has failed.
   Default behaviour is to return a "500 Server Error" response.
-* *``swagger_op_not_found_handler``* - Callback called when no swagger operation matching the request was found in the swagger schema.
+* ``swagger_op_not_found_handler`` - Callback called when no swagger operation matching the request was found in the swagger schema.
   Default behaviour is to return a "404 Not Found" response.
-* *``exception_handler=_server_error_handler``* - Callback called when an exception is thrown by downstream handlers (including exceptions thrown by your code).
+* ``exception_handler=_server_error_handler`` - Callback called when an exception is thrown by downstream handlers (including exceptions thrown by your code).
   Default behaviour is to return a "500 Server Error" response.
-* *``serve_swagger_schema``* - Boolean (default ``True``) indicating if the Swagger schema JSON should be served
-* *``swagger_schema_url``* - URL (default ``/swagger.json``) on which to serve the Swagger schema JSON
+* ``serve_swagger_schema`` - Boolean (default ``True``) indicating if the Swagger schema JSON should be served
+* ``swagger_schema_url`` - URL (default ``/swagger.json``) on which to serve the Swagger schema JSON
 
 All the callbacks above receive a single parameter representing the ``Exception`` that was raised,
 or in the case of ``swagger_op_not_found_handler`` the ``Route`` that was not found.
