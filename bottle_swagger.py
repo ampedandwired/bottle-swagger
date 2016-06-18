@@ -64,8 +64,11 @@ class SwaggerPlugin:
                 return self.swagger.spec_dict
 
     def _swagger_validate(self, callback, route, *args, **kwargs):
+        swagger_op = self._swagger_op(route)
+        if not swagger_op and self.ignore_undefined_routes:
+            return callback(*args, **kwargs)
+
         try:
-            swagger_op = self._swagger_op(route)
             if not swagger_op and not self.ignore_undefined_routes and not self._is_swagger_schema_route(route):
                 return self.swagger_op_not_found_handler(route)
 
