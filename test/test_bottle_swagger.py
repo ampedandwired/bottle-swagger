@@ -124,21 +124,15 @@ class TestBottleSwagger(TestCase):
         self.assertEqual(response.status_int, 200)
 
     def test_redirects(self):
-        bottle_app = Bottle()
-        bottle_app.install(self._make_swagger_plugin(ignore_undefined_routes=True))
+        def _test_redirect(swagger_plugin):
+            def redir():
+                redirect("/actual_thing")
 
-        @bottle_app.route('/redirme', 'GET')
-        def redir_me(*args, **kwargs):
-            redirect('/goodurl')
+            response = self._test_request(response_json=redir, swagger_plugin=swagger_plugin)
+            self.assertEqual(response.status_int, 302)
 
-        @bottle_app.route('/goodurl', 'GET')
-        def goodurl(*args, **kwargs):
-            return 'all good'
-
-        test_app = TestApp(bottle_app)
-        response = test_app.get('/redirme', expect_errors=True)
-
-        self.assertEqual(response.status_int, 302)
+        _test_redirect(self._make_swagger_plugin())
+        _test_redirect(self._make_swagger_plugin(ignore_undefined_routes=True))
 
     def test_path_parameters(self):
         response = self._test_request(url="/thing/123", route_url="/thing/<thing_id>")

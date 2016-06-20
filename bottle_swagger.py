@@ -1,5 +1,5 @@
 import re
-from bottle import request, response
+from bottle import request, response, HTTPResponse
 from bravado_core.exception import MatchingResponseNotFound
 from bravado_core.request import IncomingRequest, unmarshal_request
 from bravado_core.response import OutgoingResponse, validate_response, get_response_spec
@@ -65,14 +65,14 @@ class SwaggerPlugin:
 
     def _swagger_validate(self, callback, route, *args, **kwargs):
         swagger_op = self._swagger_op(route)
-        if not swagger_op and self.ignore_undefined_routes:
-            return callback(*args, **kwargs)
-
-        try:
-            if not swagger_op and not self.ignore_undefined_routes and not self._is_swagger_schema_route(route):
+        if not swagger_op:
+            if self.ignore_undefined_routes or self._is_swagger_schema_route(route):
+                return callback(*args, **kwargs)
+            else:
                 return self.swagger_op_not_found_handler(route)
 
-            if swagger_op and self.validate_requests:
+        try:
+            if self.validate_requests:
                 try:
                     self._validate_request(swagger_op)
                 except ValidationError as e:
@@ -80,13 +80,17 @@ class SwaggerPlugin:
 
             result = callback(*args, **kwargs)
 
-            if swagger_op and self.validate_responses:
+            if self.validate_responses:
                 try:
                     self._validate_response(swagger_op, result)
                 except (ValidationError, MatchingResponseNotFound) as e:
                     return self.invalid_response_handler(e)
 
         except Exception as e:
+            # Bottle handles redirects by raising an HTTPResponse instance
+            if isinstance(e, HTTPResponse):
+                raise e
+
             return self.exception_handler(e)
 
         return result
