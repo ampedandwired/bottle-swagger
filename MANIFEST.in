@@ -1,6 +1,6 @@
 include LICENSE
 include MANIFEST.in
-include README.md
+include README.rst
 include requirements.txt
 include bottle_swagger.py
 
