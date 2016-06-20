@@ -50,8 +50,8 @@ There are a number of arguments that you can pass to the plugin constructor:
 
 * ``validate_requests`` - Boolean (default ``True``) indicating if incoming requests should be validated or not
 * ``validate_responses`` - Boolean (default ``True``) indicating if outgoing responses should be validated or not
-* ``ignore_undefined_paths`` - Boolean (default ``False``) indicating if undefined paths
-  (that is, paths not defined in the swagger spec) should be passed on ("True") or return a 404 ("False")
+* ``ignore_undefined_routes`` - Boolean (default ``False``) indicating if undefined routes
+  (that is, routes not defined in the swagger spec) should be passed on ("True") or return a 404 ("False")
 * ``invalid_request_handler`` - Callback called when request validation has failed.
   Default behaviour is to return a "400 Bad Request" response.
 * ``invalid_response_handler`` - Callback called when response validation has failed.
