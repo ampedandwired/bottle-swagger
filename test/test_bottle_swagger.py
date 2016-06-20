@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from bottle import Bottle
+from bottle import Bottle, redirect
 from bottle_swagger import SwaggerPlugin
 from webtest import TestApp
 
@@ -122,6 +122,23 @@ class TestBottleSwagger(TestCase):
         response = self._test_request(swagger_plugin=swagger_plugin, url="/invalid", method='POST',
                                       request_json=self.INVALID_JSON, response_json=self.INVALID_JSON)
         self.assertEqual(response.status_int, 200)
+
+    def test_redirects(self):
+        bottle_app = Bottle()
+        bottle_app.install(self._make_swagger_plugin(ignore_undefined_routes=True))
+
+        @bottle_app.route('/redirme', 'GET')
+        def redir_me(*args, **kwargs):
+            redirect('/goodurl')
+
+        @bottle_app.route('/goodurl', 'GET')
+        def goodurl(*args, **kwargs):
+            return 'all good'
+
+        test_app = TestApp(bottle_app)
+        response = test_app.get('/redirme', expect_errors=True)
+
+        self.assertEqual(response.status_int, 302)
 
     def test_path_parameters(self):
         response = self._test_request(url="/thing/123", route_url="/thing/<thing_id>")
