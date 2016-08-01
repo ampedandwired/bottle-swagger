@@ -34,3 +34,11 @@ paths:
         '200':
           description: ''
           schema: {$ref: '#/definitions/Thing'}
+  "/thing_query":
+    get:
+      parameters:
+      - {in: query, name: thing_id, required: true, type: string}
+      responses:
+        '200':
+          description: ''
+          schema: {$ref: '#/definitions/Thing'}
