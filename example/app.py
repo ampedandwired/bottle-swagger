@@ -20,6 +20,13 @@ def hello(thing_id):
     return {"id": thing_id, "name": "Thing{}".format(thing_id)}
 
 
+@bottle.get('/thing_query')
+def hello():
+    thing_id = bottle.request.query['thing_id']
+    return {"id": thing_id, "name": "Thing{}".format(thing_id)}
+
+
 @bottle.post('/thing')
 def hello():
     return bottle.request.json
+

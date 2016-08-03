@@ -122,6 +122,10 @@ class BottleIncomingRequest(IncomingRequest):
     def json(self):
         return self.request.json
 
+    @property
+    def query(self):
+        return self.request.query
+
 
 class BottleOutgoingResponse(OutgoingResponse):
     def __init__(self, bottle_response, response_json):

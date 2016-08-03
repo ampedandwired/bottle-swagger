@@ -72,6 +72,24 @@ class TestBottleSwagger(TestCase):
                         }
                     }
                 }
+            },
+            "/thing_query": {
+                "get": {
+                    "parameters": [{
+                        "name": "thing_id",
+                        "in": "query",
+                        "required": True,
+                        "type": "string"
+                    }],
+                    "responses": {
+                        "200": {
+                            "description": "",
+                            "schema": {
+                                "$ref": "#/definitions/Thing"
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -136,6 +154,10 @@ class TestBottleSwagger(TestCase):
 
     def test_path_parameters(self):
         response = self._test_request(url="/thing/123", route_url="/thing/<thing_id>")
+        self.assertEqual(response.status_int, 200)
+
+    def test_query_parameters(self):
+        response = self._test_request(url="/thing_query?thing_id=123", route_url="/thing_query")
         self.assertEqual(response.status_int, 200)
 
     def test_get_swagger_schema(self):
