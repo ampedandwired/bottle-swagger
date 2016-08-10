@@ -90,6 +90,46 @@ class TestBottleSwagger(TestCase):
                         }
                     }
                 }
+            },
+            "/thing_header": {
+                "get": {
+                    "parameters": [{
+                        "name": "thing_id",
+                        "in": "header",
+                        "required": True,
+                        "type": "string"
+                    }],
+                    "responses": {
+                        "200": {
+                            "description": "",
+                            "schema": {
+                                "$ref": "#/definitions/Thing"
+                            }
+                        }
+                    }
+                }
+            },
+            "/thing_formdata": {
+                "post": {
+                    "consumes": [
+                        "application/x-www-form-urlencoded",
+                        "multipart/form-data"
+                    ],
+                    "parameters": [{
+                        "name": "thing_id",
+                        "in": "formData",
+                        "required": True,
+                        "type": "string"
+                    }],
+                    "responses": {
+                        "200": {
+                            "description": "",
+                            "schema": {
+                                "$ref": "#/definitions/Thing"
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -160,6 +200,14 @@ class TestBottleSwagger(TestCase):
         response = self._test_request(url="/thing_query?thing_id=123", route_url="/thing_query")
         self.assertEqual(response.status_int, 200)
 
+    def test_header_parameters(self):
+        response = self._test_request(url="/thing_header", route_url="/thing_header", headers={'thing_id': '123'})
+        self.assertEqual(response.status_int, 200)
+
+    def test_formdata_parameters(self):
+        response = self._test_request(url="/thing_formdata", route_url="/thing_formdata", method='POST', request_json='thing_id=123', content_type='multipart/form-data')
+        self.assertEqual(response.status_int, 200)
+
     def test_get_swagger_schema(self):
         bottle_app = Bottle()
         bottle_app.install(self._make_swagger_plugin())
@@ -168,7 +216,7 @@ class TestBottleSwagger(TestCase):
         self.assertEquals(response.json, self.SWAGGER_DEF)
 
     def _test_request(self, swagger_plugin=None, method='GET', url='/thing', route_url=None, request_json=VALID_JSON,
-                      response_json=VALID_JSON):
+                      response_json=VALID_JSON, headers=None, content_type='application/json'):
         if swagger_plugin is None:
             swagger_plugin = self._make_swagger_plugin()
         if response_json is None:
@@ -185,10 +233,14 @@ class TestBottleSwagger(TestCase):
 
         test_app = TestApp(bottle_app)
         if method.upper() == 'GET':
-            response = test_app.get(url, expect_errors=True)
+            response = test_app.get(url, expect_errors=True, headers=headers)
         elif method.upper() == 'POST':
-            response = test_app.post_json(url, request_json, expect_errors=True)
+            if content_type == 'application/json':
+                response = test_app.post_json(url, request_json, expect_errors=True, headers=headers)
+            else:
+                response = test_app.post(url, request_json, content_type=content_type, expect_errors=True, headers=headers)
         else:
+
             raise Exception("Invalid method {}".format(method))
 
         return response
