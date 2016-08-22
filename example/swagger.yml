@@ -42,3 +42,20 @@ paths:
         '200':
           description: ''
           schema: {$ref: '#/definitions/Thing'}
+  "/thing_header":
+    get:
+      parameters:
+      - {in: header, name: thing_id, required: true, type: string}
+      responses:
+        '200':
+          description: ''
+          schema: {$ref: '#/definitions/Thing'}
+  "/thing_formdata":
+    post:
+      consumes: ['application/x-www-form-urlencoded', 'multipart/form-data']
+      parameters:
+      - {in: formData, name: thing_id, required: true, type: string}
+      responses:
+        '200':
+          description: ''
+          schema: {$ref: '#/definitions/Thing'}
