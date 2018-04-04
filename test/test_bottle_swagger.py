@@ -196,6 +196,10 @@ class TestBottleSwagger(TestCase):
         response = self._test_request(url="/thing/123", route_url="/thing/<thing_id>")
         self.assertEqual(response.status_int, 200)
 
+    def test_path_parameters_regex(self):
+        response = self._test_request(url="/thing/123", route_url="/thing/<thing_id:re:[0-9]+>")
+        self.assertEqual(response.status_int, 200)
+
     def test_query_parameters(self):
         response = self._test_request(url="/thing_query?thing_id=123", route_url="/thing_query")
         self.assertEqual(response.status_int, 200)
