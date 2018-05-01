@@ -107,7 +107,7 @@ class SwaggerPlugin:
 
     def _swagger_op(self, route):
         # Convert bottle "<param>" style path params to swagger "{param}" style
-        path = re.sub(r'/<(.+?)>', r'/{\1}', route.rule)
+        path = re.sub(r'/<(.+?)(:.+)?>', r'/{\1}', route.rule)
         return self.swagger.get_op_for_request(request.method, path)
 
     def _is_swagger_schema_route(self, route):
@@ -115,6 +115,7 @@ class SwaggerPlugin:
 
 
 class BottleIncomingRequest(IncomingRequest):
+
     def __init__(self, bottle_request):
         self.request = bottle_request
         self.path = bottle_request.url_args
@@ -134,11 +135,24 @@ class BottleIncomingRequest(IncomingRequest):
     def form(self):
         return self.request.forms
 
+
 class BottleOutgoingResponse(OutgoingResponse):
+
     def __init__(self, bottle_response, response_json):
         self.response = bottle_response
         self.response_json = response_json
-        self.content_type = bottle_response.content_type if bottle_response.content_type else 'application/json'
 
     def json(self):
         return self.response_json
+
+    @property
+    def content_type(self):
+        return self.response.content_type if self.response.content_type else 'application/json'
+
+    @property
+    def headers(self):
+        return self.response.headers
+
+    @property
+    def text(self):
+        return self.response.status
